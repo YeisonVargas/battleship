@@ -1,8 +1,7 @@
-package co.yeisonvargas.battleship.peers.one.service;
+package co.yeisonvargas.battleship.peers.two.facade;
 
 import co.yeisonvargas.battleship.peers.common.Backend;
 import co.yeisonvargas.battleship.peers.common.Message;
-import co.yeisonvargas.battleship.peers.one.business.Game;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -12,26 +11,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
- * @author yeison_vargas
+ * Created by yeisonvargas on 10/06/16.
  */
 public class Facade {
 
-    private final String ownAddress;
-    private final int ownPort;
-    private final Server ownRmiServer;
+    private final String externalAddress;
+    private final int externalPort;
 
-    public Facade(Game current) throws RemoteException {
-        this.ownAddress = "localhost";
-        this.ownPort = 3232;
-        this.ownRmiServer = new Server(current);
-        this.ownRmiServer.startServer();
+
+    public Facade(String externalAddress, int externalPort) {
+        this.externalAddress = externalAddress;
+        this.externalPort = externalPort;
     }
 
 
     public boolean sendMessageChat(String message, String pathAttachment) {
         try {
-            Registry myRegister = LocateRegistry.getRegistry(this.ownAddress,
-                    this.ownPort);
+            Registry myRegister = LocateRegistry.getRegistry(this.externalAddress,
+                    this.externalPort);
             Backend backend = (Backend) (myRegister.lookup("server"));
             backend.sendMessage(message, null, "");
         } catch (RemoteException | NotBoundException e) {
@@ -42,11 +39,10 @@ public class Facade {
         return true;
     }
 
-
     public ArrayList<String []> getConversation() {
         try {
-            Registry myRegister = LocateRegistry.getRegistry(this.ownAddress,
-                    this.ownPort);
+            Registry myRegister = LocateRegistry.getRegistry(this.externalAddress,
+                    this.externalPort);
             Backend backend = (Backend) myRegister.lookup("server");
             return normalizate(backend.getConversation());
         } catch (RemoteException | NotBoundException e) {
@@ -55,7 +51,9 @@ public class Facade {
         }
     }
 
+
     private ArrayList<String []> normalizate(ArrayList<Message> allMessages) {
+
         ArrayList<String []> result = new ArrayList<>();
         SimpleDateFormat defaultFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
 
@@ -68,6 +66,5 @@ public class Facade {
 
         return result;
     }
-
 
 }

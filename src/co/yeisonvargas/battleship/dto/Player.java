@@ -1,4 +1,4 @@
-package co.yeisonvargas.battleship.peers.one.dto;
+package co.yeisonvargas.battleship.dto;
 
 /**
  * Created by yeisonvargas on 7/06/16.

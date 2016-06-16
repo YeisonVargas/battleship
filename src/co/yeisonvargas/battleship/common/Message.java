@@ -1,4 +1,4 @@
-package co.yeisonvargas.battleship.peers.common;
+package co.yeisonvargas.battleship.common;
 
 import java.io.Serializable;
 import java.util.Date;

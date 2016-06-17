@@ -19,10 +19,15 @@ public class Game {
     // True is I can Play.
     public static boolean turn;
     public static boolean canPlay;
+    public static int shipsLeftTwoSquares = 3;
+    public static int shipsLeftThreeSquares = 2;
+    public static int shipsLeftFourSquares = 2;
+    public static int shipsLeftFiveSquares = 1;
     private Facade networkService;
 
     public Game(String name, String photo) {
         this.registerSecondPlayer(name, photo);
+        Facade.role = false;
         this.initService();
     }
 
@@ -30,6 +35,7 @@ public class Game {
         Game.level = level;
         this.firstPlayer = new Player(name, photo);
         this.firstOcean = new Ocean(this.firstPlayer);
+        Facade.role = true;
         this.initService();
     }
 
@@ -51,55 +57,54 @@ public class Game {
         return this.networkService.checkGame(externalAddress, externalPort);
     }
 
-    public boolean registerShips(String [] coordinates) {
-        for(int i=0; i<coordinates.length; i++) {
-            String start = coordinates[i].split("-")[0];
-            String end = coordinates[i].split("-")[1];
+    public String [] registerShip(String coordinate) {
+        System.out.println(coordinate);
+            String start = coordinate.split("-")[0];
+            String end = coordinate.split("-")[1];
 
-            // TODO: Check that one ship hasn't been put in the same coordinates that another.
-            // TODO: Check that the ships are 3 of size 2, 2 of size 3, 2 of size 4 and 1 of 5 size.
-            if(Facade.role) {
-                this.firstOcean.insertShip(new Ship(this.getSize(start, end), start, end, this.isVertical(start, end)));
-            } else {
-                this.secondOcean.insertShip(new Ship(this.getSize(start, end), start, end, this.isVertical(start, end)));
+        System.out.println("El tamaño es: " + this.getSize(start, end));
+
+            if(this.getSize(start, end) == 2 && shipsLeftTwoSquares == 0 ||
+               this.getSize(start, end) == 3 && shipsLeftThreeSquares == 0 ||
+               this.getSize(start, end) == 4 && shipsLeftFourSquares == 0 ||
+               this.getSize(start, end) == 5 && shipsLeftFiveSquares == 0 ) {
+                return null;
             }
-        }
 
-        return false;
-    }
+            if(start.equals(end)) {
+                return null;
+            }
 
-    private boolean checkCoordinate(String coordinate) {
-        String start = coordinate.split("-")[0];
-        String end = coordinate.split("-")[1];
-
-        if(start.equals(end)) {
-            return false;
-        }
-
-        // Vertical Case, 5A-10A (A == A)
-        if(this.isVertical(start, end)) {
-            return true;
-        }
-
-        // Horizontal Case, 1A-1D (1 == 1)
-        if(!this.isVertical(start, end)) {
-            return true;
-        }
+            // TODO: Check that the ships are 3 of size 2, 2 of size 3, 2 of size 4 and 1 of 5 size.
+            if(this.getSize(start, end) != 2 && this.getSize(start, end) != 3 && this.getSize(start, end) != 4 &&
+                    this.getSize(start, end) != 5) {
+                return null;
+            }
 
 
-        return false;
+            if(Facade.role) {
+                // TODO: Check that one ship hasn't been put in the same coordinates that another.
+                System.out.println("Insertando como Rol servidor.");
+                return this.firstOcean.insertShip(new Ship(this.getSize(start, end), start, end, this.isVertical(start, end)));
+            }
+
+        return this.secondOcean.insertShip(new Ship(this.getSize(start, end), start, end, this.isVertical(start, end)));
     }
 
     private int getSize(String start, String end) {
         if(this.isVertical(start, end)){
-            return Math.abs((int)start.charAt(0) - (int)end.charAt(0));
+            System.out.println(Integer.parseInt(start.split(",")[0]));
+            System.out.println(Integer.parseInt(end.split(",")[0]));
+            return Math.abs(Integer.parseInt(start.split(",")[0]) - Integer.parseInt(end.split(",")[0])) + 1;
         }
 
-        return Math.abs((int)start.charAt(1) - (int)end.charAt(1));
+        return Math.abs(Integer.parseInt(start.split(",")[1]) - Integer.parseInt(end.split(",")[1])) + 1;
     }
 
     private boolean isVertical(String start, String end) {
-        if(start.charAt(1) == end.charAt(1)) {
+        System.out.println(start.split(",")[1]);
+        System.out.println(end.split(",")[1]);
+        if(start.split(",")[1].equals(end.split(",")[1])) {
             return true;
         }
         return false;

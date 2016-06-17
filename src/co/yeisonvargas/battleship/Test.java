@@ -32,7 +32,7 @@ public class Test {
 
             String [] coordinates = {"A2-B3", "A1-C3"};
 
-            serverGame.registerShips(coordinates);
+            //serverGame.registerShips(coordinates);
 
 
             if(!Game.canPlay) {

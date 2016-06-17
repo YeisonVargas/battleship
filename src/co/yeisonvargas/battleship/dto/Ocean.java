@@ -1,5 +1,7 @@
 package co.yeisonvargas.battleship.dto;
 
+import co.yeisonvargas.battleship.business.Game;
+
 import java.util.ArrayList;
 
 /**
@@ -14,8 +16,39 @@ public class Ocean {
         this.owner = owner;
     }
 
-    public void insertShip(Ship newShip) {
+    public String [] insertShip(Ship newShip) {
+        System.out.println("Method: insertShip...");
+        if(isOcupate(newShip)) {
+            System.out.println("It's ocupated.");
+            this.printShips();
+            return null;
+        }
         this.ships.add(newShip);
+        switch (newShip.getSize()) {
+            case 2:
+                Game.shipsLeftTwoSquares--;
+                break;
+            case 3:
+                Game.shipsLeftThreeSquares--;
+                break;
+            case 4:
+                Game.shipsLeftFourSquares--;
+                break;
+            case 5:
+                Game.shipsLeftFiveSquares--;
+                break;
+            default:
+                break;
+        }
+        System.out.println("Printing ships...");
+        this.printShips();
+        return newShip.getPositions();
+    }
+
+    private void printShips() {
+        for(Ship a: this.ships) {
+            System.out.println(a.toString());
+        }
     }
 
     public void attackShip(String coordinate) {
@@ -26,6 +59,21 @@ public class Ocean {
 
             // TODO: Return coordinate of shot and register in table
         }
+    }
+
+    private boolean isOcupate(Ship newShip) {
+        System.out.println("Method: Is Ocupate...");
+        String [] positionsNewShip = newShip.getPositions();
+        for(Ship item: this.ships) {
+            for(String position: item.getPositions()) {
+                for(String positionNewShip: positionsNewShip) {
+                    if(position.equals(positionNewShip)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isThereCollision(String coordinate, String start, String end, boolean isVertical) {

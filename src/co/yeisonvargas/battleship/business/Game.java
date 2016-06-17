@@ -151,17 +151,22 @@ public class Game {
     public String [] checkDamage(String coordinate) {
         String [] results = null;
 
+        System.out.println("Entre al damage..." + Facade.role);
+
         if(Facade.role) {
+            System.out.println("Entre al damage ROLE TRUE..." + Facade.role);
             results = this.firstOcean.attackShip(coordinate);
             if(results.length > 1){
                 this.firstPlayer.setScore(this.firstPlayer.getScore() + (15*results.length));
             }
-        }
+        } else {
+            System.out.println("Entre al damage ELSE..." + Facade.role);
 
-        // TODO: Check if shot was successful and calculate the score, 15 points for each square.
-        results = this.secondOcean.attackShip(coordinate);
-        if(results.length > 1){
-            this.secondPlayer.setScore(this.secondPlayer.getScore() + (15*results.length));
+            // TODO: Check if shot was successful and calculate the score, 15 points for each square.
+            results = this.secondOcean.attackShip(coordinate);
+            if (results.length > 1) {
+                this.secondPlayer.setScore(this.secondPlayer.getScore() + (15 * results.length));
+            }
         }
 
         return results;

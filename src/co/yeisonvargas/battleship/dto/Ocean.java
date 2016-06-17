@@ -52,9 +52,14 @@ public class Ocean {
     }
 
     public String [] attackShip(String coordinate) {
+        System.out.println("Printing ATTACK SHIPS");
+
         for (Ship item: this.ships) {
+            System.out.println(item.getStart() + " - " + item.getEnd());
             if(isThereCollision(coordinate, item.getStart(), item.getEnd(), item.isVertical())){
                 // TODO: Return coordinate of sunken ship and register in table
+
+                System.out.println("Hubo colisión en: " + item.getStart() + " - " + item.getEnd());
 
                 return item.getPositions();
             }
@@ -82,9 +87,16 @@ public class Ocean {
 
     private boolean isThereCollision(String coordinate, String start, String end, boolean isVertical) {
         if(isVertical) {
+            System.out.println("Vertical");
             if(coordinate.split(",")[1] == start.split(",")[1]){
-                if(Integer.parseInt(coordinate.split(",")[0]) <= Integer.parseInt(start.split(",")[0]) && Integer.parseInt(coordinate.split(",")[0]) >= Integer.parseInt(end.split(",")[0]) ||
-                        Integer.parseInt(coordinate.split(",")[0]) >= Integer.parseInt(start.split(",")[0]) && Integer.parseInt(coordinate.split(",")[0]) <= Integer.parseInt(end.split(",")[0])) {
+                System.out.println("Vertical..OK");
+                System.out.println(Integer.parseInt(start.split(",")[0]));
+                System.out.println(Integer.parseInt(coordinate.split(",")[0]));
+
+                System.out.println(Integer.parseInt(end.split(",")[0]));
+
+                if(Integer.parseInt(start.split(",")[0]) >= Integer.parseInt(coordinate.split(",")[0]) && Integer.parseInt(end.split(",")[0]) <= Integer.parseInt(coordinate.split(",")[0])  ||
+                        Integer.parseInt(end.split(",")[0]) >= Integer.parseInt(coordinate.split(",")[0]) && Integer.parseInt(coordinate.split(",")[0]) <= Integer.parseInt(start.split(",")[0])) {
                     return true;
                 }
                 return false;
@@ -92,16 +104,22 @@ public class Ocean {
             return false;
         }
 
+        System.out.println("HORIZONTAL");
+
         // Horizontal Case
-        if (coordinate.split(",")[0] == start.split(",")[0]) {
-            if(Integer.parseInt(coordinate.split(",")[1]) <= Integer.parseInt(start.split(",")[1]) && Integer.parseInt(coordinate.split(",")[1]) >= Integer.parseInt(end.split(",")[1]) ||
-                    Integer.parseInt(coordinate.split(",")[1]) >= Integer.parseInt(start.split(",")[1]) && Integer.parseInt(coordinate.split(",")[1]) <= Integer.parseInt(end.split(",")[1])) {
+
+            System.out.println("HORIZONTAL... OK");
+            System.out.println(Integer.parseInt(start.split(",")[1]));
+            System.out.println(Integer.parseInt(coordinate.split(",")[1]));
+
+            System.out.println(Integer.parseInt(end.split(",")[1]));
+
+            if(Integer.parseInt(start.split(",")[1]) >= Integer.parseInt(coordinate.split(",")[1]) && Integer.parseInt(coordinate.split(",")[1]) <= Integer.parseInt(end.split(",")[1]) ||
+                    Integer.parseInt(end.split(",")[1]) >= Integer.parseInt(coordinate.split(",")[1]) && Integer.parseInt(coordinate.split(",")[1]) <= Integer.parseInt(start.split(",")[1])) {
                 return true;
             }
             return false;
-        }
 
-        return false;
     }
 
 

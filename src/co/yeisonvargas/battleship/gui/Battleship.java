@@ -593,18 +593,36 @@ public class Battleship extends javax.swing.JFrame {
 
         String [] results;
 
-        results = this.newGame.registerAttack(this.jTextFieldAttack.getText());
+        String start = this.jTextFieldAttack.getText().split("-")[0];
+
+        String result =  (Integer.parseInt(start.split(",")[0]) - 1) + "," + getIndexAlphabet(start.split(",")[1]);
+
+
+        results = this.newGame.registerAttack(result);
 
         if(results != null) {
 
+            for(String a: results) {
+                System.out.println(a);
+            }
             if(results.length == 1) {
-                this.externalOcean[Integer.parseInt(results[0].split(",")[0])]
-                        [Integer.parseInt(results[0].split(",")[1])].setIcon(new ImageIcon(getClass().getResource("fall.jpg")));
+                JLabel a = this.externalOcean[Integer.parseInt(results[0].split(",")[0])]
+                        [Integer.parseInt(results[0].split(",")[1])];
+
+                a.setOpaque(true);
+                a.setBackground(Color.RED);
+
+                        //.setIcon(new ImageIcon(getClass().getResource("fall.jpg")));
             }
 
             for(String item: results){
-                this.externalOcean[Integer.parseInt(item.split(",")[0])]
-                        [Integer.parseInt(item.split(",")[1])].setIcon(new ImageIcon(getClass().getResource("sink.png")));
+                JLabel a  = this.externalOcean[Integer.parseInt(item.split("-")[0])]
+                        [Integer.parseInt(item.split("-")[1])];
+
+                a.setOpaque(true);
+                a.setBackground(Color.GREEN);
+
+                //.setIcon(new ImageIcon(getClass().getResource("sink.png")));
             }
 
         } else {

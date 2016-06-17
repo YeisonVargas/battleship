@@ -4,6 +4,8 @@ import co.yeisonvargas.battleship.common.Backend;
 import co.yeisonvargas.battleship.common.Message;
 import co.yeisonvargas.battleship.business.Game;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -30,10 +32,25 @@ public class Facade {
         this.ownRmiServer.startServer();
     }
 
+    public Facade(Game current, int port) throws RemoteException {
+        Facade.ownAddress = "localhost";
+        Facade.ownPort = port;
+        this.ownRmiServer = new Server(current);
+        this.ownRmiServer.startServer();
+    }
 
-    public boolean sendMessageChat(String message, String address, int port) {
+
+    public boolean sendMessageChat(String message) {
+        String addr = this.ownAddress;
+        int prt = this.ownPort;
+
+        if(!Facade.role) {
+            addr = this.externalAddress;
+            prt = this.externalPort;
+        }
+
         try {
-            Registry myRegister = LocateRegistry.getRegistry(address, port);
+            Registry myRegister = LocateRegistry.getRegistry(addr, prt);
             Backend backend = (Backend) (myRegister.lookup("server"));
             backend.sendMessage(message, "");
         } catch (RemoteException | NotBoundException e) {
@@ -41,43 +58,50 @@ public class Facade {
             return false;
         }
 
+        if(Facade.role) {
+            try {
+                System.out.println(this.externalAddress);
+                System.out.println(this.externalPort);
+                Registry myRegister = LocateRegistry.getRegistry(this.externalAddress, this.externalPort);
+                Backend backend = (Backend) (myRegister.lookup("server"));
+                backend.refreshUI();
+            } catch (RemoteException | NotBoundException e) {
+                System.err.println(e.getMessage());
+                return false;
+            }
+        }
+
         return true;
     }
 
     public ArrayList<String []> getConversation() {
-        ArrayList<Message> messagesSendToClientTwo;
-        ArrayList<Message> messagesSendFromClientTwo;
+        ArrayList<Message> messages;
 
-        try {
-            Registry myRegister = LocateRegistry.getRegistry(this.externalAddress,
-                    this.externalPort);
-            Backend backend = (Backend)myRegister.lookup("server");
-            messagesSendToClientTwo = backend.getConversation();
-            backend.getConversation();
-        } catch (RemoteException | NotBoundException e) {
-            System.err.println(e.getMessage());
-            return null;
+        String addr = this.ownAddress;
+        int prt = this.ownPort;
+
+        if(!Facade.role) {
+            addr = this.externalAddress;
+            prt = this.externalPort;
         }
 
-        try {
-            Registry myRegister = LocateRegistry.getRegistry(this.ownAddress,
-                    this.ownPort);
-            Backend backend = (Backend)myRegister.lookup("server");
-            messagesSendFromClientTwo = backend.getConversation();
-        } catch (RemoteException | NotBoundException e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+            try {
+                Registry myRegister = LocateRegistry.getRegistry(addr,
+                        prt);
+                Backend backend = (Backend)myRegister.lookup("server");
+                messages = backend.getConversation();
+                backend.getConversation();
+            } catch (RemoteException | NotBoundException e) {
+                System.err.println(e.getMessage());
+                return null;
+            }
 
-        ArrayList<Message> messages = messagesSendFromClientTwo;
-
-        messages.addAll(messagesSendToClientTwo);
 
         return normalizate(messages);
     }
 
 
-    public String registerAttack(String coordinate) {
+    public String [] registerAttack(String coordinate) {
         try {
             Registry myRegister = LocateRegistry.getRegistry(externalAddress, externalPort);
             Backend backend = (Backend) (myRegister.lookup("server"));
@@ -112,13 +136,41 @@ public class Facade {
     }
 
 
-    public void showThatSecondPlayerIsOnline() {
+    public String showThatSecondPlayerIsOnline() {
         try {
+            System.out.println(externalAddress);
+            System.out.println(externalPort);
             Registry myRegister = LocateRegistry.getRegistry(externalAddress, externalPort);
             Backend backend = (Backend) (myRegister.lookup("server"));
-            backend.showSecondPlayerHasJoined();
+            return backend.showSecondPlayerHasJoined(Facade.ownAddress, Facade.ownPort);
         } catch (RemoteException | NotBoundException e) {
-            return;
+            return null;
+        }
+    }
+
+
+    public int getLevel() {
+        try {
+            System.out.println(externalAddress);
+            System.out.println(externalPort);
+            Registry myRegister = LocateRegistry.getRegistry(externalAddress, externalPort);
+            Backend backend = (Backend) (myRegister.lookup("server"));
+            return backend.getLevel();
+        } catch (RemoteException | NotBoundException e) {
+            return -1;
+        }
+    }
+
+
+    public String getData() {
+        try {
+            System.out.println(externalAddress);
+            System.out.println(externalPort);
+            Registry myRegister = LocateRegistry.getRegistry(externalAddress, externalPort);
+            Backend backend = (Backend) (myRegister.lookup("server"));
+            return backend.getData();
+        } catch (RemoteException | NotBoundException e) {
+            return null;
         }
     }
 

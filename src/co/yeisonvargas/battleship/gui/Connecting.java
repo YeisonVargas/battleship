@@ -161,8 +161,8 @@ public class Connecting extends javax.swing.JFrame {
         Facade.role = false;
         Facade.externalAddress = this.jTextFieldServerIp.getText();
         Facade.externalPort = Integer.parseInt(this.jTextFieldPort.getText());
-        this.newGame = new Game(this.jTextFieldName.getText(), "");
         new Battleship(this.jTextFieldName.getText(), "").setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

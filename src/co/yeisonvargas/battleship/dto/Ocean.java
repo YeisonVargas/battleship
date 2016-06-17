@@ -51,14 +51,18 @@ public class Ocean {
         }
     }
 
-    public void attackShip(String coordinate) {
+    public String [] attackShip(String coordinate) {
         for (Ship item: this.ships) {
             if(isThereCollision(coordinate, item.getStart(), item.getEnd(), item.isVertical())){
                 // TODO: Return coordinate of sunken ship and register in table
-            }
 
-            // TODO: Return coordinate of shot and register in table
+                return item.getPositions();
+            }
         }
+
+        // TODO: Return coordinate of shot and register in table
+        String [] result = {coordinate};
+        return result;
     }
 
     private boolean isOcupate(Ship newShip) {
@@ -78,9 +82,9 @@ public class Ocean {
 
     private boolean isThereCollision(String coordinate, String start, String end, boolean isVertical) {
         if(isVertical) {
-            if(coordinate.charAt(1) == start.charAt(1)){
-                if((int)coordinate.charAt(0) <= (int)start.charAt(0) && (int)coordinate.charAt(0) >= (int)end.charAt(0) ||
-                        (int)coordinate.charAt(0) >= (int)start.charAt(0) && (int)coordinate.charAt(0) <= (int)end.charAt(0)) {
+            if(coordinate.split(",")[1] == start.split(",")[1]){
+                if(Integer.parseInt(coordinate.split(",")[0]) <= Integer.parseInt(start.split(",")[0]) && Integer.parseInt(coordinate.split(",")[0]) >= Integer.parseInt(end.split(",")[0]) ||
+                        Integer.parseInt(coordinate.split(",")[0]) >= Integer.parseInt(start.split(",")[0]) && Integer.parseInt(coordinate.split(",")[0]) <= Integer.parseInt(end.split(",")[0])) {
                     return true;
                 }
                 return false;
@@ -89,9 +93,9 @@ public class Ocean {
         }
 
         // Horizontal Case
-        if (coordinate.charAt(0) == start.charAt(0)) {
-            if((int)coordinate.charAt(1) <= (int)start.charAt(1) && (int)coordinate.charAt(1) >= (int)end.charAt(1) ||
-                    (int)coordinate.charAt(1) >= (int)start.charAt(1) && (int)coordinate.charAt(1) <= (int)end.charAt(1)) {
+        if (coordinate.split(",")[0] == start.split(",")[0]) {
+            if(Integer.parseInt(coordinate.split(",")[1]) <= Integer.parseInt(start.split(",")[1]) && Integer.parseInt(coordinate.split(",")[1]) >= Integer.parseInt(end.split(",")[1]) ||
+                    Integer.parseInt(coordinate.split(",")[1]) >= Integer.parseInt(start.split(",")[1]) && Integer.parseInt(coordinate.split(",")[1]) <= Integer.parseInt(end.split(",")[1])) {
                 return true;
             }
             return false;

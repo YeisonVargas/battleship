@@ -23,6 +23,7 @@ public class Battleship extends javax.swing.JFrame {
             "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     private JLabel [] [] ownOcean;
+    private JLabel [] [] externalOcean;
 
     /**
      * Creates new form Battleship
@@ -30,9 +31,14 @@ public class Battleship extends javax.swing.JFrame {
     public Battleship(int level, String name, String photo) {
         initComponents();
 
-        this.newGame = new Game(level, name, photo);
+        this.newGame = new Game(this, level, name, photo);
 
+        this.jLabelFirstPlayer.setText(name);
+        this.jLabelFirstPlayerScore.setText("0");
+        this.setUp(level);
+    }
 
+    private void setUp(int level){
         int easy = 9;
         int medium = 13;
         int hard = 19;
@@ -70,15 +76,13 @@ public class Battleship extends javax.swing.JFrame {
         this.loadExamplesShips(5, width, height, this.jPanelFiveSquares);
 
 
-        /*
-        this.load(level, height, width, this.jPanelOwnOcean);
-        height = this.jPanelEnemyOcean.getPreferredSize().height / level;
-        width = this.jPanelEnemyOcean.getPreferredSize().width / level;
-        */
-
         load(level, height, width, jPanelOwnOcean, true);
         load(level, height, width, jPanelEnemyOcean, false);
+    }
 
+    public void setData(String data) {
+        this.jLabelFirstPlayer.setText(data.split("-")[1]);
+        this.jLabelFirstPlayerScore.setText(data.split("-")[0]);
     }
 
     private void loadExamplesShips(int size, int width, int height, JPanel container) {
@@ -93,7 +97,27 @@ public class Battleship extends javax.swing.JFrame {
     }
 
     public Battleship(String name, String photo) {
+        initComponents();
+        this.newGame = new Game(this, name, photo);
+        this.jLabelSecondPlayer.setText(name);
+        this.jLabelSecondScore.setText("0");
 
+        this.setUp(this.newGame.getLevel());
+    }
+
+    public void setChat() {
+        String content = "";
+        for(String[] item: this.newGame.getConversation()) {
+            content +=  item[1] + "\n\t" + item[0] + "\n";
+        }
+        System.out.println("OK UI REFRESH CLIENT ONE");
+        this.jTextAreaChat.setText(content);
+        this.jTextAreaNewMessage.setText("");
+    }
+
+    public void setDataSecondPlayer() {
+        this.jLabelSecondPlayer.setText(this.newGame.getData().split("-")[1]);
+        this.jLabelSecondScore.setText(this.newGame.getData().split("-")[0]);
     }
     
     private void load(int level, int height, int width, JPanel oceanContainer, boolean ownBoard) {
@@ -103,6 +127,8 @@ public class Battleship extends javax.swing.JFrame {
 
         if(ownBoard) {
             this.ownOcean = ocean;
+        } else {
+            this.externalOcean = ocean;
         }
 
         for(int x=0; x<ocean.length; x++) {
@@ -157,8 +183,8 @@ public class Battleship extends javax.swing.JFrame {
         jPanelEnemyOcean = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabelPosition = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jButtonAddShip1 = new javax.swing.JButton();
+        jTextFieldAttack = new javax.swing.JTextField();
+        jButtonAttack = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jPanelTwoSquares = new javax.swing.JPanel();
         jLabelTwoLeftShips = new javax.swing.JLabel();
@@ -168,6 +194,11 @@ public class Battleship extends javax.swing.JFrame {
         jLabelFourLeftShips = new javax.swing.JLabel();
         jPanelThreeSquares = new javax.swing.JPanel();
         jLabelThreeLeftShips = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabelFirstPlayerScore = new javax.swing.JLabel();
+        jLabelFirstPlayer = new javax.swing.JLabel();
+        jLabelSecondPlayer = new javax.swing.JLabel();
+        jLabelSecondScore = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -214,7 +245,7 @@ public class Battleship extends javax.swing.JFrame {
 
         jLabel3.setText("Mar Enemigo");
 
-        jTextFieldCoordinateRegisterShip.setText("1A-1B");
+        jTextFieldCoordinateRegisterShip.setText("1,A-1,B");
         jTextFieldCoordinateRegisterShip.setToolTipText("");
 
         jButtonAddShip.setText("Agregar Barco");
@@ -243,10 +274,15 @@ public class Battleship extends javax.swing.JFrame {
         jLabelPosition.setFont(new java.awt.Font("Ubuntu", 0, 15)); // NOI18N
         jLabelPosition.setForeground(java.awt.Color.red);
 
-        jTextField2.setText("1A");
-        jTextField2.setToolTipText("");
+        jTextFieldAttack.setText("1,A");
+        jTextFieldAttack.setToolTipText("");
 
-        jButtonAddShip1.setText("Atacar");
+        jButtonAttack.setText("Atacar");
+        jButtonAttack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAttackActionPerformed(evt);
+            }
+        });
 
         jPanel1.setBackground(java.awt.Color.white);
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Barcos pendientes por posicionar", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Ubuntu", 1, 15), java.awt.Color.black)); // NOI18N
@@ -362,6 +398,38 @@ public class Battleship extends javax.swing.JFrame {
                 .addGap(28, 28, 28))
         );
 
+        jPanel2.setBackground(java.awt.Color.white);
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Información del Juego", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Ubuntu", 1, 15))); // NOI18N
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabelSecondPlayer, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
+                    .addComponent(jLabelFirstPlayer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelSecondScore, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelFirstPlayerScore, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelFirstPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelFirstPlayerScore, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelSecondPlayer, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelSecondScore, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(125, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout JpanelBackgroundLayout = new javax.swing.GroupLayout(JpanelBackground);
         JpanelBackground.setLayout(JpanelBackgroundLayout);
         JpanelBackgroundLayout.setHorizontalGroup(
@@ -385,24 +453,29 @@ public class Battleship extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(JpanelBackgroundLayout.createSequentialGroup()
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jTextFieldAttack, javax.swing.GroupLayout.PREFERRED_SIZE, 191, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addComponent(jButtonAddShip1))
+                                .addComponent(jButtonAttack))
                             .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jPanelEnemyOcean, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 313, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(jButtonSend))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30))
+                    .addGroup(JpanelBackgroundLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jScrollPane1)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 313, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jButtonSend))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, JpanelBackgroundLayout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(24, 24, 24))
         );
         JpanelBackgroundLayout.setVerticalGroup(
             JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -419,34 +492,37 @@ public class Battleship extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanelOwnOcean, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanelEnemyOcean, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jPanelEnemyOcean, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(JpanelBackgroundLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(JpanelBackgroundLayout.createSequentialGroup()
+                                        .addComponent(jLabelPosition, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGap(12, 12, 12))
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jTextFieldCoordinateRegisterShip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonAddShip)))
+                            .addGroup(JpanelBackgroundLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jTextFieldAttack, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonAttack))))
+                        .addGap(0, 0, 0)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(391, 391, 391))
                     .addGroup(JpanelBackgroundLayout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonSend)))
-                .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(JpanelBackgroundLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(JpanelBackgroundLayout.createSequentialGroup()
-                                .addComponent(jLabelPosition, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGap(12, 12, 12))
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextFieldCoordinateRegisterShip, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonAddShip)))
-                    .addGroup(JpanelBackgroundLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(JpanelBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButtonAddShip1))))
-                .addGap(0, 0, 0)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(391, 391, 391))
+                        .addComponent(jButtonSend)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -473,6 +549,8 @@ public class Battleship extends javax.swing.JFrame {
         }
         System.out.println("Ok client Two");
         // TODO: Check...
+        this.newGame.sendMessage(jTextAreaNewMessage.getText());
+        this.setChat();
         //System.out.println(this.serviceChat.sendMessageClientOne(jTextAreaNewMessage.getText(), ""));
     }//GEN-LAST:event_jButtonSendActionPerformed
 
@@ -496,7 +574,6 @@ public class Battleship extends javax.swing.JFrame {
                 temp.setBackground(Color.black);
             }
 
-            //this.jPanelOwnOcean.getComponentAt()
             //JOptionPane.showMessageDialog(null, "Barco registrado.");
 
 
@@ -511,6 +588,30 @@ public class Battleship extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButtonAddShipActionPerformed
 
+    private void jButtonAttackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAttackActionPerformed
+        // TODO add your handling code here:
+
+        String [] results;
+
+        results = this.newGame.registerAttack(this.jTextFieldAttack.getText());
+
+        if(results != null) {
+
+            if(results.length == 1) {
+                this.externalOcean[Integer.parseInt(results[0].split(",")[0])]
+                        [Integer.parseInt(results[0].split(",")[1])].setIcon(new ImageIcon(getClass().getResource("fall.jpg")));
+            }
+
+            for(String item: results){
+                this.externalOcean[Integer.parseInt(item.split(",")[0])]
+                        [Integer.parseInt(item.split(",")[1])].setIcon(new ImageIcon(getClass().getResource("sink.png")));
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Ha ocurrido un error con la conexión.");
+        }
+    }//GEN-LAST:event_jButtonAttackActionPerformed
+
     private String getIndexAlphabet(String letter) {
         for(int i=0; i<this.alphabet.length; i++) {
             if(this.alphabet[i].equalsIgnoreCase(letter)) {
@@ -522,18 +623,23 @@ public class Battleship extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel JpanelBackground;
     private javax.swing.JButton jButtonAddShip;
-    private javax.swing.JButton jButtonAddShip1;
+    private javax.swing.JButton jButtonAttack;
     private javax.swing.JButton jButtonSend;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabelFirstPlayer;
+    private javax.swing.JLabel jLabelFirstPlayerScore;
     private javax.swing.JLabel jLabelFiveLeftShips;
     private javax.swing.JLabel jLabelFourLeftShips;
     private javax.swing.JLabel jLabelPosition;
+    private javax.swing.JLabel jLabelSecondPlayer;
+    private javax.swing.JLabel jLabelSecondScore;
     private javax.swing.JLabel jLabelThreeLeftShips;
     private javax.swing.JLabel jLabelTwoLeftShips;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanelEnemyOcean;
     private javax.swing.JPanel jPanelFiveSquares;
     private javax.swing.JPanel jPanelFourSquares;
@@ -545,7 +651,7 @@ public class Battleship extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextArea jTextAreaChat;
     private javax.swing.JTextArea jTextAreaNewMessage;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField jTextFieldAttack;
     private javax.swing.JTextField jTextFieldCoordinateRegisterShip;
     // End of variables declaration//GEN-END:variables
 }

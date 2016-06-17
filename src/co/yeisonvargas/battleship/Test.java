@@ -28,7 +28,7 @@ public class Test {
 
         Facade.role = role;
         if (role) {
-            Game serverGame = new Game(0, name, photo);
+            Game serverGame = new Game(null, 0, name, photo);
 
             String [] coordinates = {"A2-B3", "A1-C3"};
 
@@ -64,7 +64,7 @@ public class Test {
             // Is it my turn?
 
         } else {
-            Game clientGame = new Game(name, photo);
+            Game clientGame = new Game(null, name, photo);
             if(!clientGame.checkStatusGame(externalAddress, externalPort)) {
                 System.out.println("The external game isn't ready for a second player.");
                 return;
